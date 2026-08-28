@@ -55,13 +55,18 @@ stay in sync.
 
 ## Run it on this PC
 
-Installed already: **Start Menu → Habit Tracker Calendar** (and a desktop shortcut).
+**Start Menu → Habit Tracker Calendar** (also on the desktop) opens the deployed app in a
+chromeless browser window. It is the same signed-in instance as the website, so the PC
+and the browser share one account and one set of habits. No local server runs.
 
-It starts the production server on `localhost:5058` in the background and opens a
-chromeless browser window, so it behaves like a normal desktop app. Launching it again
-reuses the running server. To shut the server down: `powershell -File stop-server.ps1`.
+**Start Menu → Habit Tracker Calendar (Local)** is the offline copy: it serves the app on
+`localhost:5058` with no database, so there is no account and habits stay in that browser
+only. Useful for exporting data tracked before the site existed, and for testing a build
+before pushing. Shut its server down with `powershell -File stop-server.ps1`.
 
-After changing code, run `npm run build` and relaunch.
+Moving habits from the local copy into your account: open the local app, click the
+download icon in the sidebar footer, then click the upload icon in the synced app and pick
+that file. Habits match on name, so importing twice never duplicates anything.
 
 ## Setup
 
