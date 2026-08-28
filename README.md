@@ -53,6 +53,16 @@ stay in sync.
 
 ---
 
+## Run it on this PC
+
+Installed already: **Start Menu → Habit Tracker Calendar** (and a desktop shortcut).
+
+It starts the production server on `localhost:5058` in the background and opens a
+chromeless browser window, so it behaves like a normal desktop app. Launching it again
+reuses the running server. To shut the server down: `powershell -File stop-server.ps1`.
+
+After changing code, run `npm run build` and relaunch.
+
 ## Setup
 
 ### 1. Database (enables accounts and cross-device sync)
