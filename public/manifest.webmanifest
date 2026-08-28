@@ -1,0 +1,26 @@
+{
+  "name": "Habit Tracker Calendar",
+  "short_name": "Habits",
+  "description": "Track habits on a Day / Week / Month / Year calendar and see how often you actually show up.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "any",
+  "background_color": "#08090a",
+  "theme_color": "#08090a",
+  "categories": ["productivity", "lifestyle", "health"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Today", "short_name": "Today", "url": "/?view=day", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "This month", "short_name": "Month", "url": "/?view=month", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "This year", "short_name": "Year", "url": "/?view=year", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
