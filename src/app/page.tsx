@@ -23,6 +23,14 @@ const VIEWS: CalendarView[] = ["day", "week", "month", "year"];
 const VIEW_KEYS: Record<string, CalendarView> = { d: "day", w: "week", m: "month", y: "year" };
 const SKIP_KEY = "htc.skipAuth";
 const VIEW_KEY = "htc.view";
+const WIDTH_KEY = "htc.sidebarW";
+
+// Sidebar sizing. Dragging below SNAP collapses to RAIL_W, a strip of swatches.
+const RAIL_W = 62;
+const MIN_W = 176;
+const MAX_W = 420;
+const SNAP_W = 140;
+const DEFAULT_W = 258;
 
 export default function Page() {
   const store = useStore();
@@ -41,6 +49,8 @@ export default function Page() {
   const [railOpen, setRailOpen] = useState(false);
   const [skipped, setSkipped] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [sidebarW, setSidebarW] = useState(DEFAULT_W);
+  const [dragging, setDragging] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const say = useCallback((message: string) => {
@@ -55,6 +65,8 @@ export default function Page() {
     const next = (param ?? stored ?? "") as CalendarView;
     if (VIEWS.includes(next)) setView(next);
     setSkipped(window.localStorage.getItem(SKIP_KEY) === "1");
+    const w = Number(window.localStorage.getItem(WIDTH_KEY));
+    if (Number.isFinite(w) && w > 0) setSidebarW(w === RAIL_W ? RAIL_W : Math.min(MAX_W, Math.max(MIN_W, w)));
   }, []);
 
   useEffect(() => {
@@ -136,6 +148,45 @@ export default function Page() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [step]);
+
+  const commitWidth = useCallback((w: number) => {
+    setSidebarW(w);
+    try { window.localStorage.setItem(WIDTH_KEY, String(w)); } catch { /* ignore */ }
+  }, []);
+
+  /** Drag the sidebar's right edge; past SNAP_W it collapses to the swatch rail. */
+  const startResize = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startW = sidebarW;
+    let latest = startW;
+    setDragging(true);
+
+    const onMove = (ev: PointerEvent) => {
+      const raw = startW + (ev.clientX - startX);
+      latest = raw < SNAP_W ? RAIL_W : Math.min(MAX_W, Math.max(MIN_W, raw));
+      setSidebarW(latest);
+    };
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      document.body.style.removeProperty("cursor");
+      document.body.style.removeProperty("user-select");
+      setDragging(false);
+      commitWidth(latest);
+    };
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  }, [sidebarW, commitWidth]);
+
+  const toggleRail = useCallback(() => {
+    commitWidth(sidebarW <= RAIL_W + 8 ? DEFAULT_W : RAIL_W);
+  }, [sidebarW, commitWidth]);
 
   const signIn = useCallback(() => {
     try { window.localStorage.removeItem(SKIP_KEY); } catch { /* ignore */ }
@@ -277,7 +328,10 @@ export default function Page() {
         />
       </header>
 
-      <div className={`body ${railOpen ? "rail-open" : ""}`}>
+      <div
+        className={`body ${railOpen ? "rail-open" : ""}`}
+        style={{ ["--sidebar-w" as string]: `${sidebarW}px` }}
+      >
         {drawer && <div className="drawer-scrim" onClick={() => setDrawer(false)} />}
 
         <Sidebar
@@ -296,7 +350,18 @@ export default function Page() {
           onImport={() => fileRef.current?.click()}
           onLogout={() => void logout()}
           onSignIn={signIn}
-        />
+          rail={sidebarW <= RAIL_W + 8}
+        >
+          <div
+            className={`resize-handle ${dragging ? "dragging" : ""}`}
+            onPointerDown={startResize}
+            onDoubleClick={toggleRail}
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize the habit sidebar"
+            title="Drag to resize · double-click to collapse"
+          />
+        </Sidebar>
 
         <main className="main">
           <div className="canvas">

@@ -240,12 +240,69 @@ a { color: inherit; }
    ============================================================ */
 
 .sidebar {
+  position: relative;
   border-right: 1px solid var(--line);
   background: var(--surface);
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
+
+/* ---------- drag-to-resize ---------- */
+
+.resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -4px;
+  width: 9px;
+  z-index: 40;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+/* A hairline that only shows on hover, so the chrome stays quiet at rest. */
+.resize-handle::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: transparent;
+  transition: background 130ms var(--ease);
+}
+
+.resize-handle:hover::after,
+.resize-handle.dragging::after {
+  background: var(--text-3);
+  box-shadow: 0 0 8px -1px var(--text-3);
+}
+
+/* ---------- collapsed rail: colour swatches only ---------- */
+
+.sidebar.rail .side-head { justify-content: center; padding: 12px 0 8px; }
+.sidebar.rail .side-head .label { display: none; }
+.sidebar.rail .side-scroll { padding: 0 4px 8px; }
+
+.sidebar.rail .habit-row {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  padding: 9px 0;
+  gap: 0;
+}
+
+.sidebar.rail .habit-name,
+.sidebar.rail .streak,
+.sidebar.rail .edit-pencil,
+.sidebar.rail .filter-note,
+.sidebar.rail .account,
+.sidebar.rail .rail-hide { display: none; }
+
+.sidebar.rail .swatch { width: 16px; height: 16px; border-radius: 5px; }
+.sidebar.rail .side-foot { padding: 8px 6px calc(8px + env(safe-area-inset-bottom)); align-items: center; }
+.sidebar.rail .side-foot .btn { width: 100%; padding: 0; }
+.sidebar.rail .hint { display: none; }
 
 .side-head {
   display: flex;
@@ -1090,6 +1147,7 @@ kbd {
     box-shadow: 0 0 60px rgba(0, 0, 0, 0.6);
   }
   .sidebar.open { transform: none; }
+  .resize-handle { display: none; }
 
   .drawer-scrim {
     display: block;

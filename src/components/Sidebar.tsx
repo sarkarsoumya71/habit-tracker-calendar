@@ -10,6 +10,8 @@ type Props = {
   selected: Set<string>;
   matchingDays: number;
   open: boolean;
+  /** Collapsed to a strip of colour swatches. */
+  rail: boolean;
   user: User | null;
   cloudEnabled: boolean;
   onToggleSelect: (id: string, additive: boolean) => void;
@@ -20,17 +22,19 @@ type Props = {
   onImport: () => void;
   onLogout: () => void;
   onSignIn: () => void;
+  /** The resize handle, owned by the page so it can drive the width. */
+  children?: React.ReactNode;
 };
 
 export default function Sidebar({
-  habits, entries, selected, matchingDays, open, user, cloudEnabled,
+  habits, entries, selected, matchingDays, open, rail, user, cloudEnabled,
   onToggleSelect, onClearFilter, onNewHabit, onEditHabit,
-  onExport, onImport, onLogout, onSignIn,
+  onExport, onImport, onLogout, onSignIn, children,
 }: Props) {
   const filtering = selected.size > 0;
 
   return (
-    <aside className={`sidebar ${open ? "open" : ""}`} aria-label="Habits">
+    <aside className={`sidebar ${open ? "open" : ""} ${rail ? "rail" : ""}`} aria-label="Habits">
       <div className="side-head">
         <span className="label">Habits · {habits.length}</span>
         <button className="icon-btn" onClick={onNewHabit} title="New habit (N)" aria-label="New habit">
@@ -40,7 +44,7 @@ export default function Sidebar({
 
       <div className="side-scroll">
         {habits.length === 0 ? (
-          <p className="hint" style={{ padding: "10px 8px 0" }}>
+          <p className="hint rail-hide" style={{ padding: "10px 8px 0" }}>
             No habits yet. Double-click any day on the calendar, or press{" "}
             <kbd>N</kbd>, to add your first one.
           </p>
@@ -60,6 +64,7 @@ export default function Sidebar({
                       ? `${h.name} — ${h.description}`
                       : `${h.name} — click to filter the calendar`
                   }
+                  aria-label={h.name}
                 >
                   <i className="swatch" style={{ background: h.color, color: h.color }} />
                   <span className="habit-name">{h.name}</span>
@@ -104,8 +109,15 @@ export default function Sidebar({
             <span>Click a habit to filter</span>
           </div>
         )}
-        <button className="btn" onClick={onNewHabit} style={{ width: "100%" }}>
-          <Plus /> New habit
+        <button
+          className="btn"
+          onClick={onNewHabit}
+          style={{ width: "100%" }}
+          title={rail ? "New habit (N)" : undefined}
+          aria-label="New habit"
+        >
+          <Plus />
+          {!rail && <span>New habit</span>}
         </button>
 
         <div className="account">
@@ -129,6 +141,8 @@ export default function Sidebar({
           ) : null}
         </div>
       </div>
+
+      {children}
     </aside>
   );
 }
